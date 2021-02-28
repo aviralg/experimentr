@@ -2,6 +2,7 @@
 
 export(extract_examples)
 export(write_examples)
+importFrom(progress,progress_bar)
 importFrom(tools,Rd2ex)
 importFrom(tools,Rd_db)
 importFrom(tools,checkVignettes)
