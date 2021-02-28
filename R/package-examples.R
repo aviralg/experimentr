@@ -63,17 +63,16 @@ extract_examples <- function(packages,
                              comment_dont_run = TRUE,
                              comment_dont_test = TRUE,
                              prepend_library_load = TRUE,
-                             verbose = TRUE) {
+                             progress = TRUE) {
 
-    if(verbose) {
-        pb <- progress_bar$new(
-                               format = "Processing :what [:bar] :current/:total (:percent) eta: :eta",
+    if(progress) {
+        pb <- progress_bar$new(format = "Processing :what [:bar] :current/:total (:percent) eta: :eta",
                                total = length(packages),
                                width = 80)
     }
 
     helper  <- function(package, ...) {
-        if(verbose) pb$tick(tokens = list(what = pad(package, 15)))
+        if(progress) pb$tick(tokens = list(what = pad(package, 15)))
         extract_examples_helper(package, ...)
     }
 
