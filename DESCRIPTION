@@ -1,0 +1,15 @@
+Package: experimentr
+Title: Scheduling, manage and analyze large-scale program analysis runs
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Aviral",
+           family = "Goel",
+           role = c("aut", "cre"),
+           email = "goel.aviral@gmail.com",
+           comment = c(ORCID = "0000-0002-0814-5015"))
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
