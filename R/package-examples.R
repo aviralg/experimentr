@@ -128,10 +128,12 @@ extract_code_helper <- function(package, type, ...) {
 
 #' @export
 #' @importFrom progress progress_bar
+#' @importFrom fst write.fst
 extract_code <- function(packages,
                          type = c("examples", "vignettes", "tests"),
                          progress = TRUE,
-                         output_dirpath = NULL,
+                         index_filepath = NULL,
+                         data_dirpath = NULL,
                          libraries = NULL,
                          encoding = "UTF-8",
                          comment_dont_run = TRUE,
@@ -160,8 +162,12 @@ extract_code <- function(packages,
 
     result <- do.call(rbind, dfs)
 
-    if(is.character(output_dirpath)) {
-        result <- write_code_result(result, output_dirpath)
+    if(!is.null(index_filepath)) {
+        write.fst(result, index_filepath)
+    }
+
+    if(!is.null(data_dirpath)) {
+        result <- write_code_result(result, data_dirpath)
     }
 
     result
@@ -192,7 +198,7 @@ extract_tests <- function(...) {
 }
 
 #' @export
-write_code_result <- function(code, output_dirpath) {
+write_code_result <- function(code, data_dirpath) {
 
     if(nrow(code) == 0) {
         code$filepath <- character(0)
@@ -200,14 +206,17 @@ write_code_result <- function(code, output_dirpath) {
     }
 
     example_writer <- function(row) {
+        package <- code[row, "package"]
+        type <- code[row, "type"]
         filename <- code[row, "filename"]
         content <- code[row, "content"]
-        filepath <- file.path(output_dirpath, filename)
+        filepath <- file.path(data_dirpath, package, type, filename)
+        dir.create(dirname(filepath), showWarnings=FALSE, recursive=TRUE)
         cat(content, file = filepath, append = FALSE)
         filepath
     }
 
-    dir.create(output_dirpath, showWarnings = FALSE)
+    dir.create(data_dirpath, showWarnings = FALSE)
 
     code$filepath <- sapply(1:nrow(code), example_writer)
 
