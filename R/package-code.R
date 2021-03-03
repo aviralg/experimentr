@@ -37,7 +37,7 @@ extract_code <- function(packages,
 
     result <- do.call(rbind, dfs)
 
-    if (remove_empty) {
+    if (filter_empty) {
         result <- mutate(result, content = str_trim(content))
         result <- filter(result, content != "")
     }
