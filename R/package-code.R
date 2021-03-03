@@ -16,7 +16,7 @@ extract_code <- function(packages,
                          comment_dont_run = TRUE,
                          comment_dont_test = TRUE,
                          filter_empty = TRUE,
-                         prepend_library = c("example", "vignette", "test")) {
+                         add_library_call = c("example", "vignette", "test")) {
 
     if(progress) {
         pb <- progress_bar$new(format = "Processing :what [:bar] :current/:total (:percent) eta: :eta",
@@ -52,7 +52,7 @@ extract_code <- function(packages,
                                  content))
     }
 
-    for(type in prepend_library) {
+    for(type in add_library_call) {
         result <- prepend_library(result, type)
     }
 
