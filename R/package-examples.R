@@ -1,136 +1,13 @@
-#' @importFrom tools Rd2ex Rd_db
-#' @importFrom stringi stri_enc_toutf8
-extract_examples_helper <- function(package,
-                                    libraries = NULL,
-                                    encoding = "UTF-8",
-                                    comment_dont_run = TRUE,
-                                    comment_dont_test = TRUE,
-                                    prepend_library_load = TRUE) {
-
-    db <- tryCatch({
-        Rd_db(package, libraries)
-    }, error = function(e) {
-        print(e)
-        list()
-    })
-
-    if(length(db) == 0) {
-        return(create_result(package, character(0), character(0)))
-    }
-
-    example_extractor <- function(example_filename) {
-        elt <- db[[example_filename]]
-        out <- textConnection("code", "w", local = TRUE)
-        Rd2ex(elt,
-              out,
-              outputEncoding = encoding,
-              commentDontrun = comment_dont_run,
-              commentDonttest = comment_dont_test)
-        close(out)
-
-        code <- stri_enc_toutf8(paste(code, sep = "\n", collapse = "\n"))
-
-        if(code == "") NA_character_
-
-        else if(prepend_library_load) {
-            library_load <- paste0("library", "(", package, ")")
-            paste(library_load, code, sep = "\n")
-        }
-
-        else code
-    }
-
-    filenames <- names(db)
-    contents <- sapply(filenames, example_extractor)
-
-    na_indices <- is.na(contents)
-
-    create_result(package,
-                  replace_extension(filenames[!na_indices], ".R"),
-                  contents[!na_indices])
-
-}
-
-#' @importFrom tools pkgVignettes checkVignettes
-#' @importFrom utils vignette
-#' @importFrom stringi stri_enc_toutf8
-extract_vignettes_helper <- function(package) {
-
-    vignettes <- tryCatch({
-
-        vignettes <- pkgVignettes(package, source=TRUE)
-
-        ## if there are vignettes and there are no vignette sources,
-        ## then compile the vignettes to sources. This compilation
-        ## will result in .R files in the doc directory of package
-        ## and will be picked up by the next step of the program
-        if (length(vignettes$docs) != 0 &&
-            length(vignettes$sources) == 0) {
-
-            tools::checkVignettes(package, tangle=TRUE, weave=FALSE, workdir="src")
-        }
-
-        pkgVignettes(package, source=TRUE)
-    },
-    error = function(e) {
-        print(e)
-        list(sources = list())
-    })
-
-    ## unlist is needed because one source can generate
-    ## more than one R file.
-    filepaths <- as.character(unlist(vignettes$sources))
-
-    if(length(filepaths) == 0) {
-        return(create_result(package, character(0), character(0)))
-    }
-
-    filenames <- basename(filepaths)
-
-    vignette_reader <- function(filepath) {
-        code <- stri_enc_toutf8(readChar(filepath, file.info(filepath)$size))
-
-        if(code == "") NA_character_
-        else code
-    }
-
-    contents <- sapply(filepaths, vignette_reader)
-    na_indices <- is.na(contents)
-
-    create_result(package,
-                  replace_extension(filenames[!na_indices], ".R"),
-                  contents[!na_indices])
-}
-
-extract_code_helper <- function(package, type, ...) {
-
-    result <- NULL
-
-    helper <- function(type, fun) {
-        res <- fun(package)
-        if(nrow(res) != 0) {
-            res$type <- type
-            result <<- rbind(result, res)
-        }
-    }
-
-    if("examples" %in% type) {
-        helper("example", extract_examples_helper)
-    }
-    if("tests" %in% type) {
-        helper("test", extract_tests_helper)
-    }
-    if("vignettes" %in% type) {
-        helper("vignette", extract_vignettes_helper)
-    }
-    result
-}
+EXAMPLE <- "example"
+VIGNETTE <- "vignette"
+TESTTHAT <- "testthat"
+TEST <- "test"
 
 #' @export
 #' @importFrom progress progress_bar
 #' @importFrom fst write.fst
 extract_code <- function(packages,
-                         type = c("examples", "vignettes", "tests"),
+                         type = c("example", "vignette", "testthat", "test"),
                          progress = TRUE,
                          index_filepath = NULL,
                          data_dirpath = NULL,
@@ -162,7 +39,7 @@ extract_code <- function(packages,
 
     result <- do.call(rbind, dfs)
 
-    if(!is.null(index_filepath)) {
+    if(!is.null(index_filepath) && !is.null(result)) {
         write.fst(result, index_filepath)
     }
 
@@ -177,7 +54,7 @@ extract_code <- function(packages,
 extract_examples <- function(...) {
     call <- match.call()
     call[[1]] <- as.name("extract_code")
-    call$type = "examples"
+    call$type <- "example"
     eval(call, parent.frame())
 }
 
@@ -185,7 +62,15 @@ extract_examples <- function(...) {
 extract_vignettes <- function(...) {
     call <- match.call()
     call[[1]] <- as.name("extract_code")
-    call$type = "vignettes"
+    call$type <- "vignette"
+    eval(call, parent.frame())
+}
+
+#' @export
+extract_testthats <- function(...) {
+    call <- match.call()
+    call[[1]] <- as.name("extract_code")
+    call$type <- "testthat"
     eval(call, parent.frame())
 }
 
@@ -193,38 +78,251 @@ extract_vignettes <- function(...) {
 extract_tests <- function(...) {
     call <- match.call()
     call[[1]] <- as.name("extract_code")
-    call$type = "tests"
+    call$type <- "test"
     eval(call, parent.frame())
 }
 
+
+#' @importFrom dplyr bind_rows
+extract_code_helper <- function(package, type, ...) {
+
+    result <- NULL
+
+    helper <- function(fun) {
+        bind_rows(result, fun(package))
+    }
+
+    if("example" %in% type) {
+        result <- helper(extract_examples_helper)
+    }
+    if("testthat" %in% type) {
+        result <- helper(extract_testthats_helper)
+    }
+    if("test" %in% type) {
+        result <- helper(extract_tests_helper)
+    }
+    if("vignette" %in% type) {
+        result <- helper(extract_vignettes_helper)
+    }
+
+    result
+}
+
+
+#' @importFrom tools Rd2ex Rd_db
+extract_examples_helper <- function(package,
+                                    libraries = NULL,
+                                    encoding = "UTF-8",
+                                    comment_dont_run = TRUE,
+                                    comment_dont_test = TRUE,
+                                    prepend_library_load = TRUE) {
+
+    db <- tryCatch({
+        Rd_db(package, libraries)
+    }, error = function(e) {
+        print(e)
+        list()
+    })
+
+    result <- NULL
+
+    if (length(db) != 0) {
+
+        example_extractor <- function(example_filename) {
+            elt <- db[[example_filename]]
+            out <- textConnection("code", "w", local = TRUE)
+            Rd2ex(elt,
+                  out,
+                  outputEncoding = encoding,
+                  commentDontrun = comment_dont_run,
+                  commentDonttest = comment_dont_test)
+            close(out)
+
+            code <- paste(code, sep = "\n", collapse = "\n")
+
+            if(prepend_library_load) {
+                library_load <- paste0("library", "(", package, ")")
+                code <- paste(library_load, code, sep = "\n")
+            }
+
+            code
+        }
+
+        filenames <- names(db)
+        contents <- sapply(filenames, example_extractor)
+
+        result <- create_result(package,
+                                EXAMPLE,
+                                "",
+                                filenames,
+                                contents)
+    }
+
+    result
+}
+
+#' @importFrom tools pkgVignettes checkVignettes
+#' @importFrom utils vignette
+#' @importFrom readr read_file
+extract_vignettes_helper <- function(package) {
+
+    vignettes <- tryCatch({
+
+        vignettes <- pkgVignettes(package, source=TRUE)
+
+        ## if there are vignettes and there are no vignette sources,
+        ## then compile the vignettes to sources. This compilation
+        ## will result in .R files in the doc directory of package
+        ## and will be picked up by the next step of the program
+        if (length(vignettes$docs) != 0 &&
+            length(vignettes$sources) == 0) {
+
+            tools::checkVignettes(package, tangle=TRUE, weave=FALSE, workdir="src")
+        }
+
+        pkgVignettes(package, source=TRUE)
+    },
+    error = function(e) {
+        print(e)
+        list(sources = list())
+    })
+
+    ## unlist is needed because one source can generate
+    ## more than one R file.
+    filepaths <- as.character(unlist(vignettes$sources))
+
+    result <- NULL
+
+    if (length(filepaths) != 0) {
+        filenames <- basename(filepaths)
+
+        contents <- sapply(filepaths, read_file)
+
+        result <- create_result(package,
+                                VIGNETTE,
+                                "",
+                                filenames,
+                                contents)
+    }
+
+    result
+}
+
+## replace_extension(filenames[!na_indices], ".R"),
+
+
+#' @importFrom fs dir_ls path_file file_exists
+#' @importFrom purrr map_chr
+#' @importFrom readr read_file
+#' @importFrom tibble add_row
+extract_testthats_helper <- function(package) {
+
+    test_path <- system.file("tests", "testthat", package = package)
+
+    result <- NULL
+
+    if (test_path != "") {
+
+        filepaths <- c(dir_ls(test_path, glob = "*.R"),
+                       dir_ls(test_path, glob = "*.r"))
+
+        filenames <- path_file(filepaths)
+
+        contents <- map_chr(filepaths, read_file)
+
+        ignore <- length(path_split(test_path)[[1]])
+
+        subdirs <- map_chr(filepaths, function(x) {
+            elts <- x[seq2(ignore + 1, length(x) - 1)]
+            str_c(elts, collapse="/", sep="")
+        })
+
+        result <- create_result(package,
+                                TESTTHAT,
+                                subdirs,
+                                filenames,
+                                contents)
+
+        add_testthat_file <- function(filename) {
+            filepath <- path_join(c(test_path, filename))
+
+            res <- result
+            if (file_exists(filepath)) {
+                 res <- add_row(result,
+                                package = package,
+                                type = TESTTHAT,
+                                subdir = "",
+                                filename = filename,
+                                content = read_file(filepath))
+            }
+            res
+        }
+
+        result <- add_testthat_file("testthat.r")
+        result <- add_testthat_file("testthat.R")
+    }
+
+    result
+}
+
+#' @importFrom fs dir_ls path_file
+#' @importFrom purrr map_chr
+#' @importFrom readr read_file
+extract_tests_helper <- function(package) {
+    tests_dirpath <- system.file("tests", package = package)
+    testthat_dirpath <- system.file("tests", "testthat", package = package)
+
+    result <- NULL
+
+    if(tests_dirpath != "" && testthat_dirpath == "") {
+        filepaths <- c(dir_ls(tests_dirpath, glob = "*.R"),
+                       dir_ls(tests_dirpath, glob = "*.r"))
+
+        filenames <- path_file(filepaths)
+
+        contents <- map_chr(filepaths, read_file)
+
+        ignore <- length(path_split(tests_dirpath)[[1]])
+
+        subdirs <- map_chr(filepaths, function(x) {
+            elts <- x[seq2(ignore + 1, length(x) - 1)]
+            str_c(elts, collapse="/", sep="")
+        })
+
+        result <- create_result(package,
+                                TEST,
+                                subdirs,
+                                filenames,
+                                contents)
+
+    }
+
+    result
+}
+
+#' @importFrom fs path_join dir_create path_dir
+#' @importFrom purrr map2_chr pmap_chr
+#' @importFrom readr write_file
 #' @export
 write_code_result <- function(code, data_dirpath) {
 
-    if(nrow(code) == 0) {
-        code$filepath <- character(0)
-        return(code)
-    }
+    filepaths <- pmap_chr(list(data_dirpath, code$package, code$type, code$subdir, code$filename),
+                          function(...) path_join(c(...)))
 
-    example_writer <- function(row) {
-        package <- code[row, "package"]
-        type <- code[row, "type"]
-        filename <- code[row, "filename"]
-        content <- code[row, "content"]
-        filepath <- file.path(data_dirpath, package, type, filename)
-        dir.create(dirname(filepath), showWarnings=FALSE, recursive=TRUE)
-        cat(content, file = filepath, append = FALSE)
-        filepath
-    }
-
-    dir.create(data_dirpath, showWarnings = FALSE)
-
-    code$filepath <- sapply(1:nrow(code), example_writer)
+    map2_chr(code$content, filepaths, function(content, filepath) {
+        dir_create(path_dir(filepath), recurse=TRUE)
+        write_file(content, filepath)
+    })
 
     code
 }
 
-create_result <- function(package, filenames, contents) {
-    data.frame(package = if(length(filenames) == 0) character(0) else package,
-               filename = filenames,
-               content = contents)
+#' @importFrom fs path_ext_set
+#' @importFrom tibble tibble
+create_result <- function(packages, types, subdirs, filenames, contents) {
+    tibble(package = packages,
+           type = types,
+           subdir = subdirs,
+           filename = path_ext_set(filenames, "R"),
+           content = contents)
 }
