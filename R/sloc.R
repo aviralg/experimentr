@@ -1,5 +1,5 @@
 #' @importFrom fs dir_create path_dir
-#' @importFrom fst write.fst
+#' @importFrom fst write_fst
 #' @export
 compute_sloc <- function(path,
                          engine = sloc_cloc_engine(),
@@ -14,7 +14,7 @@ compute_sloc <- function(path,
 
     if(!is.null(output_filepath)) {
         dir_create(path_dir(output_filepath), recurse=TRUE)
-        write.fst(sloc, output_filepath)
+        write_fst(sloc, output_filepath)
     }
 
     sloc

@@ -5,17 +5,18 @@ TEST <- "test"
 
 #' @export
 #' @importFrom progress progress_bar
-#' @importFrom fst write.fst
+#' @importFrom fst write_fst
+#' @importFrom stringr str_c str_trim
+#' @importFrom dplyr mutate filter if_else
 extract_code <- function(packages,
                          type = c("example", "vignette", "testthat", "test"),
                          progress = TRUE,
                          index_filepath = NULL,
                          data_dirpath = NULL,
-                         libraries = NULL,
-                         encoding = "UTF-8",
                          comment_dont_run = TRUE,
                          comment_dont_test = TRUE,
-                         prepend_library_load = TRUE) {
+                         filter_empty = TRUE,
+                         prepend_library = c("example", "vignette", "test")) {
 
     if(progress) {
         pb <- progress_bar$new(format = "Processing :what [:bar] :current/:total (:percent) eta: :eta",
@@ -31,16 +32,32 @@ extract_code <- function(packages,
     dfs <- lapply(packages,
                   helper,
                   type,
-                  libraries,
-                  encoding,
                   comment_dont_run,
-                  comment_dont_test,
-                  prepend_library_load)
+                  comment_dont_test)
 
     result <- do.call(rbind, dfs)
 
+    if (remove_empty) {
+        result <- mutate(result, content = str_trim(content))
+        result <- filter(result, content != "")
+    }
+
+    library_column <- str_c("library(", result$package, ")", sep = "")
+    modified_content <- str_c(library_column, result$content, sep = "\n")
+
+    prepend_library <- function(result, code_type) {
+        mutate(result,
+               content = if_else(type == code_type,
+                                 modified_content,
+                                 content))
+    }
+
+    for(type in prepend_library) {
+        result <- prepend_library(result, type)
+    }
+
     if(!is.null(index_filepath) && !is.null(result)) {
-        write.fst(result, index_filepath)
+        write_fst(result, index_filepath)
     }
 
     if(!is.null(data_dirpath)) {
@@ -111,14 +128,11 @@ extract_code_helper <- function(package, type, ...) {
 
 #' @importFrom tools Rd2ex Rd_db
 extract_examples_helper <- function(package,
-                                    libraries = NULL,
-                                    encoding = "UTF-8",
                                     comment_dont_run = TRUE,
-                                    comment_dont_test = TRUE,
-                                    prepend_library_load = TRUE) {
+                                    comment_dont_test = TRUE) {
 
     db <- tryCatch({
-        Rd_db(package, libraries)
+        Rd_db(package)
     }, error = function(e) {
         print(e)
         list()
@@ -133,19 +147,11 @@ extract_examples_helper <- function(package,
             out <- textConnection("code", "w", local = TRUE)
             Rd2ex(elt,
                   out,
-                  outputEncoding = encoding,
                   commentDontrun = comment_dont_run,
                   commentDonttest = comment_dont_test)
             close(out)
 
-            code <- paste(code, sep = "\n", collapse = "\n")
-
-            if(prepend_library_load) {
-                library_load <- paste0("library", "(", package, ")")
-                code <- paste(library_load, code, sep = "\n")
-            }
-
-            code
+            paste(code, sep = "\n", collapse = "\n")
         }
 
         filenames <- names(db)
