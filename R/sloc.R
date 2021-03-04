@@ -34,7 +34,7 @@ sloc_cloc_engine <- function(binary = "cloc",
                                            "--csv",
                                            "--csv-delimiter=;",
                                            "--by-file",
-                                           "--timeout=0")) {
+                                           "--skip-uniqueness")) {
     result <- function(path, ...) {
         result <- run(binary,
                       c(arguments, path),
