@@ -39,32 +39,39 @@ get_package_function_info <- function(name, ns) {
 #' @importFrom tibble add_column
 get_one_package_info <- function(package) {
 
-    ns_loaded_names <- loadedNamespaces()
+    tryCatch({
+        ns_loaded_names <- loadedNamespaces()
 
-    ns <- getNamespace(package)
-    ## NOTE: should be the same as package
-    ns_name <- getNamespaceName(ns)
-    path <- get_ns_path(ns)
+        ns <- getNamespace(package)
+        ## NOTE: should be the same as package
+        ns_name <- getNamespaceName(ns)
+        path <- get_ns_path(ns)
 
-    names <- ls(ns, all.names = TRUE)
+        names <- ls(ns, all.names = TRUE)
 
-    is_function <- function(name) is.function(get0(name, ns, inherits = FALSE))
-    names <- purrr::keep(names, is_function)
+        is_function <- function(name) is.function(get0(name, ns, inherits = FALSE))
+        names <- purrr::keep(names, is_function)
 
-    result <- map_dfr(names, get_package_function_info, ns)
+        result <- map_dfr(names, get_package_function_info, ns)
 
-    result <- add_column(result, package = package, path = path, .before = 1)
+        result <- add_column(result, package = package, path = path, .before = 1)
 
-    if (!(ns_name %in% ns_loaded_names)) unloadNamespace(ns)
+        if (!(ns_name %in% ns_loaded_names)) unloadNamespace(ns)
 
-    result
+        result
+    },
+    error = function(e) {
+        print(e)
+        NULL
+    })
 }
 
 
-#' @importFrom purrr map_dfr
+#' @importFrom purrr map
 #' @importFrom fst write_fst
 #' @importFrom fs dir_create path_dir
 #' @importFrom progress progress_bar
+#' @importFrom dplyr bind_rows
 #' @export
 get_package_info <- function(packages, progress = FALSE, output_filepath = NULL) {
 
@@ -79,7 +86,7 @@ get_package_info <- function(packages, progress = FALSE, output_filepath = NULL)
         get_one_package_info(package, ...)
     }
 
-    result <- map_dfr(packages, helper)
+    result <- bind_rows(map(packages, helper))
 
     if(!is.null(output_filepath)) {
         dir_create(path_dir(output_filepath), recurse = TRUE)
