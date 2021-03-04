@@ -7,7 +7,7 @@ TEST <- "test"
 #' @importFrom progress progress_bar
 #' @importFrom fst write_fst
 #' @importFrom stringr str_c str_trim
-#' @importFrom dplyr mutate filter if_else
+#' @importFrom dplyr mutate filter if_else select
 extract_code <- function(packages,
                          type = c("example", "vignette", "testthat", "test"),
                          progress = TRUE,
