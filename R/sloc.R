@@ -28,7 +28,13 @@ compute_sloc <- function(path,
 #' @importFrom dplyr rename
 #' @importFrom utils head
 #' @export
-sloc_cloc_engine <- function(binary = "cloc", arguments = c("--follow-links", "-q", "--csv", "--csv-delimiter=;", "--by-file", "--timeout 0")) {
+sloc_cloc_engine <- function(binary = "cloc",
+                             arguments = c("--follow-links",
+                                           "-q",
+                                           "--csv",
+                                           "--csv-delimiter=;",
+                                           "--by-file",
+                                           "--timeout=0")) {
     result <- function(path, ...) {
         result <- run(binary,
                       c(arguments, path),
