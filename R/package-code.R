@@ -57,7 +57,7 @@ extract_code <- function(packages,
     }
 
     if(!is.null(index_filepath) && !is.null(result)) {
-        write_fst(result, index_filepath)
+        write_fst(select(result, -content), index_filepath)
     }
 
     if(!is.null(data_dirpath)) {
