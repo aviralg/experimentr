@@ -38,7 +38,12 @@ get_package_function_info <- function(name, ns) {
 #' @importFrom purrr keep map_dfr
 #' @importFrom tibble add_column
 get_one_package_info <- function(package) {
+
+    ns_loaded_names <- loadedNamespaces()
+
     ns <- getNamespace(package)
+    ## NOTE: should be the same as package
+    ns_name <- getNamespaceName(ns)
     path <- get_ns_path(ns)
 
     names <- ls(ns, all.names = TRUE)
@@ -46,9 +51,13 @@ get_one_package_info <- function(package) {
     is_function <- function(name) is.function(get0(name, ns, inherits = FALSE))
     names <- purrr::keep(names, is_function)
 
-    res <- map_dfr(names, get_package_function_info, ns)
+    result <- map_dfr(names, get_package_function_info, ns)
 
-    add_column(res, package = package, path = path, .before = 1)
+    result <- add_column(result, package = package, path = path, .before = 1)
+
+    if (!(ns_name %in% ns_loaded_names)) unloadNamespace(ns)
+
+    result
 }
 
 
