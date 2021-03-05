@@ -39,8 +39,9 @@ merge_tables <- function(files,
 #' @importFrom fs path_join dir_delete file_delete
 #' @importFrom tibble tibble
 #' @importFrom dplyr left_join
-#' @importFrom readr read_table
+#' @importFrom readr read_table read_file
 #' @importFrom stringr str_to_lower
+#' @importForm fst write_fst
 merge_logs <- function(log_dirs,
                        job_log,
                        output_filepath,
