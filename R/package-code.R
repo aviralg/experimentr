@@ -157,8 +157,8 @@ extract_examples_helper <- function(package,
         filenames <- names(db)
         contents <- sapply(filenames, example_extractor)
 
-        result <- create_result(package,
-                                EXAMPLE,
+        result <- create_result(EXAMPLE,
+                                package,
                                 "",
                                 filenames,
                                 contents)
@@ -204,8 +204,8 @@ extract_vignettes_helper <- function(package) {
 
         contents <- sapply(filepaths, read_file)
 
-        result <- create_result(package,
-                                VIGNETTE,
+        result <- create_result(VIGNETTE,
+                                package,
                                 "",
                                 filenames,
                                 contents)
@@ -243,8 +243,8 @@ extract_testthats_helper <- function(package) {
             str_c(elts, collapse="/", sep="")
         })
 
-        result <- create_result(package,
-                                TESTTHAT,
+        result <- create_result(TESTTHAT,
+                                package,
                                 subdirs,
                                 filenames,
                                 contents)
@@ -295,8 +295,8 @@ extract_tests_helper <- function(package) {
             str_c(elts, collapse="/", sep="")
         })
 
-        result <- create_result(package,
-                                TEST,
+        result <- create_result(TEST,
+                                package,
                                 subdirs,
                                 filenames,
                                 contents)
@@ -312,7 +312,7 @@ extract_tests_helper <- function(package) {
 #' @export
 write_code_result <- function(code, data_dirpath) {
 
-    filepaths <- pmap_chr(list(data_dirpath, code$package, code$type, code$subdir, code$filename),
+    filepaths <- pmap_chr(list(data_dirpath, code$type, code$package, code$subdir, code$filename),
                           function(...) path_join(c(...)))
 
     map2_chr(code$content, filepaths, function(content, filepath) {
@@ -325,9 +325,9 @@ write_code_result <- function(code, data_dirpath) {
 
 #' @importFrom fs path_ext_set
 #' @importFrom tibble tibble
-create_result <- function(packages, types, subdirs, filenames, contents) {
-    tibble(package = packages,
-           type = types,
+create_result <- function(types, packages, subdirs, filenames, contents) {
+    tibble(type = types,
+           package = packages,
            subdir = subdirs,
            filename = path_ext_set(filenames, "R"),
            content = contents)
