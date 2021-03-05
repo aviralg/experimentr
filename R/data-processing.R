@@ -5,10 +5,10 @@
 #' @importFrom fs path_dir file_delete dir_delete dir_ls
 merge_tables <- function(files,
                          output_filepath,
-                         reader = read_fst,
-                         writer = write_fst,
                          remove_files = TRUE,
-                         remove_empty_dirs = TRUE) {
+                         remove_empty_dirs = TRUE,
+                         reader = read_fst,
+                         writer = write_fst) {
 
     df <- map_dfr(files, reader)
 
