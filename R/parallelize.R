@@ -9,8 +9,13 @@ current_r_exec <- function() {
 #' @importFrom stringr str_c
 r_expr <- function(expr,
                    r_exec = current_r_exec(),
-                   args = c("--vanilla", "--slave")) {
+                   args = c("--vanilla", "--slave"),
+                   invisible = FALSE) {
+    if(invisible) {
+        expr <- str_c("invisible(", expr, ")", sep = "");
+    }
     expr <- str_c("\"", expr, "\"")
+
     c(r_exec, args, "-e", expr)
 }
 
