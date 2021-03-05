@@ -37,7 +37,7 @@ parallelize <- function(command,
                         windows_hide_window = FALSE,
                         encoding = "",
                         cleanup_tree = TRUE,
-                        engine = gnu_parallel_engine()) {
+                        engine = gnu_parallel()) {
     inputs <- c(...)
     run(engine$exec,
         c(engine$args, command, inputs),
@@ -55,14 +55,17 @@ parallelize <- function(command,
         cleanup_tree = cleanup_tree)
 }
 
+#' @export
 file_input <- function(filename, sep = "::::") {
     c(sep, filename)
 }
 
+#' @export
 vector_input <- function(values, sep = ":::") {
     c(sep, values)
 }
 
-gnu_parallel_engine <- function(..., exec = "parallel") {
+#' @export
+gnu_parallel <- function(..., exec = "parallel") {
     list(exec = exec, args = as.character(list(...)))
 }
