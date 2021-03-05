@@ -39,11 +39,11 @@ merge_tables <- function(files,
 #' @importFrom fs path_join dir_delete file_delete
 #' @importFrom tibble tibble
 #' @importFrom dplyr left_join
-#' @importFrom readr read_table read_file
+#' @importFrom readr read_tsv read_file
 #' @importFrom stringr str_to_lower
 #' @importForm fst write_fst
 merge_logs <- function(log_dirs,
-                       job_log,
+                       job_log_file,
                        output_filepath,
                        remove_logs = FALSE,
                        remove_job_log = FALSE,
@@ -59,11 +59,7 @@ merge_logs <- function(log_dirs,
 
     log_table <- tibble(seq = seqs, stderr = stderrs, stdout = stdouts)
 
-    print(log_table, n = 10)
-
-    job_log <- read_table(job_log)
-
-    print(job_log, n = 10)
+    job_log <- read_tsv(job_log_file)
 
     names(job_log) <- str_to_lower(names(job_log))
 
@@ -80,7 +76,7 @@ merge_logs <- function(log_dirs,
     }
 
     if(remove_job_log) {
-        file_delete(job_log)
+        file_delete(job_log_file)
     }
 
     result
