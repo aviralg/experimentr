@@ -59,6 +59,8 @@ merge_logs <- function(log_dirs,
 
     job_log <- read_table(job_log)
 
+    names(job_log) <- str_to_lower(names(job_log))
+
     result <- left_join(job_log, log_table, by = "seq")
 
     if(!is.null(output_filepath)) {
