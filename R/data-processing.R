@@ -39,8 +39,9 @@ merge_tables <- function(files,
 #' @importFrom fs path_join dir_delete file_delete
 #' @importFrom tibble tibble
 #' @importFrom dplyr left_join
-#' @importFrom readr read_table
+#' @importFrom readr read_table read_file
 #' @importFrom stringr str_to_lower
+#' @importForm fst write_fst
 merge_logs <- function(log_dirs,
                        job_log,
                        output_filepath,
@@ -53,16 +54,22 @@ merge_logs <- function(log_dirs,
     }
 
     stderrs <- map_chr(read_log(log_dirs, "stderr"), reader)
-    stdouts <- map_chr(read_log(log_dirs, "stdout"), writer)
-    seqs <- map_chr(path_join(list(log_dirs, "seq")), reader)
+    stdouts <- map_chr(read_log(log_dirs, "stdout"), reader)
+    seqs <- as.integer(map_chr(read_log(log_dirs, "seq"), reader))
 
     log_table <- tibble(seq = seqs, stderr = stderrs, stdout = stdouts)
 
+    print(log_table, n = 10)
+
     job_log <- read_table(job_log)
+
+    print(job_log, n = 10)
 
     names(job_log) <- str_to_lower(names(job_log))
 
     result <- left_join(job_log, log_table, by = "seq")
+
+    print(result, n = 10)
 
     if(!is.null(output_filepath)) {
         writer(result, output_filepath)
