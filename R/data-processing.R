@@ -1,7 +1,7 @@
 
 #' @export
 #' @importFrom fst read_fst write_fst
-#' @importFrom purrr map_dfr
+#' @importFrom purrr map_dfr walk
 #' @importFrom fs path_dir file_delete dir_delete dir_ls
 merge_tables <- function(files,
                          output_filepath,
@@ -40,6 +40,7 @@ merge_tables <- function(files,
 #' @importFrom tibble tibble
 #' @importFrom dplyr left_join
 #' @importFrom readr read_table
+#' @importFrom stringr str_to_lower
 merge_logs <- function(log_dirs,
                        job_log,
                        output_filepath,
