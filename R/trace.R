@@ -6,7 +6,7 @@ write_tracing_result <- function(result, dir) {
     dir_create(dir, recurse = TRUE)
     data <- result$data
     for(name in names(data)) {
-        file <- path_ext_set(path_join(dir, name), ext = "fst")
+        file <- path_ext_set(path_join(c(dir, name)), ext = "fst")
         write_fst(data[[name]], file)
     }
 }
