@@ -20,10 +20,18 @@ r_expr <- function(expr,
 }
 
 #' @export
+#' @importFrom fst read_fst
+#' @importFrom readr write_csv
+#' @importFrom fs path_ext_set path_ext
 r_file <- function(file,
                    r_exec = current_r_exec(),
                    args = c("--vanilla", "--slave")) {
-    c(r_exec, args, "-f", file)
+    if(path_ext(file) == "fst") {
+        df <- read_fst(file)
+        new_file <- path_ext_set(file, "csv")
+        write_csv(df, new_file)
+    }
+    c(r_exec, args, "-f", new_file)
 }
 
 #' @export
