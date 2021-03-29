@@ -43,7 +43,7 @@ tracing_index <- function(index_file,
 
     file_suffix <- pmap_chr(df,
                             function(type, package, subdir, filename) {
-                                path_join(c(indir, type, package, subdir, filename))
+                                path_join(c(type, package, subdir, filename))
                             })
 
     file_kernel = path_ext_remove(file_suffix)
