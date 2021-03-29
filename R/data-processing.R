@@ -41,7 +41,7 @@ merge_tables <- function(files,
 #' @importFrom dplyr left_join
 #' @importFrom readr read_tsv read_file
 #' @importFrom stringr str_to_lower
-#' @importForm fst write_fst
+#' @importFrom fst write_fst
 merge_logs <- function(log_dirs,
                        job_log_file,
                        output_filepath,

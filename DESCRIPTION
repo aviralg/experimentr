@@ -23,4 +23,5 @@ Imports:
     rlang,
     fs,
     purrr,
-    tibble
+    tibble,
+    magrittr
