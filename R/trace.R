@@ -16,11 +16,12 @@ write_tracing_result <- function(result, dir) {
 #' @importFrom utils installed.packages
 #' @importFrom dplyr filter
 #' @importFrom fst read_fst
-#' @importFrom readr write_csv
+#' @importFrom readr write_lines
 #' @importFrom fs path_join path_ext_remove
 #' @importFrom purrr map2_chr pmap_chr
 #' @importFrom stringr str_glue_data
 #' @importFrom magrittr %>%
+#' @importFrom tibble tibble
 tracing_index <- function(index_file,
                           indir,
                           outdir,
@@ -80,8 +81,12 @@ tracing_index <- function(index_file,
         exprs <- c(exprs, gen_expr("vignette", vignette_wrapper))
     }
 
-    write_csv(exprs, expr_index_file)
-    write_csv(outdirs, outdir_index_file)
-    write_csv(logdirs, logdir_index_file)
+    write_lines(exprs, expr_index_file)
+    write_lines(outdirs, outdir_index_file)
+    write_lines(logdirs, logdir_index_file)
+
+    tibble(exprs = exprs,
+           outdirs = outdirs,
+           logdirs = logdirs)
 }
 
