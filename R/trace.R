@@ -31,7 +31,7 @@ tracing_index <- function(index_file,
                           packages = installed.packages()[,1],
                           types = c("test", "testthat", "example", "vignette"),
                           test_wrapper = "trace <- trace_file('{file}'); experimentr::write_trace(trace, '{outdir}')",
-                          testthat_wrapper = "trace <- trace_expr(testthat::test_file({file}, package='{package}')); experimentr::write_trace(trace, '{outdir}')",
+                          testthat_wrapper = "trace <- trace_expr(testthat::test_file('{file}', package='{package}')); experimentr::write_trace(trace, '{outdir}')",
                           example_wrapper = "trace <- trace_file('{file}'); experimentr::write_trace(trace, '{outdir}')",
                           vignette_wrapper = "trace <- trace_file('{file}');  experimentr::write_trace(trace, '{outdir}')") {
 
@@ -39,7 +39,8 @@ tracing_index <- function(index_file,
 
     df <- read_fst(index_file) %>%
         filter(type %in% types) %>%
-        filter(package %in% packages)
+        filter(package %in% packages) %>%
+        filter(type != "testthat" | !str_starts("helper-"))
 
     file_suffix <- pmap_chr(df,
                             function(type, package, subdir, filename) {
@@ -52,7 +53,7 @@ tracing_index <- function(index_file,
 
     outdirs <- map2_chr(outdir, file_kernel, path_join2)
 
-    logdirs <- paste0(outdir, "/")
+    logdirs <- paste0(outdirs, "/")
 
     df <- mutate(df, file = file, outdir = outdirs, logdir = logdirs)
 
