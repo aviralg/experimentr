@@ -19,7 +19,7 @@ write_tracing_result <- function(result, dir) {
 #' @importFrom readr write_lines
 #' @importFrom fs path_join path_ext_remove
 #' @importFrom purrr map2_chr pmap_chr
-#' @importFrom stringr str_glue_data
+#' @importFrom stringr str_glue_data str_starts
 #' @importFrom magrittr %>%
 #' @importFrom tibble tibble
 tracing_index <- function(index_file,
