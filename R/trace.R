@@ -54,7 +54,7 @@ tracing_index <- function(index_file,
 
     logdirs <- paste0(outdir, "/")
 
-    df <- mutate(df, file = file, outdir = outdir, logdir = logdir)
+    df <- mutate(df, file = file, outdir = outdirs, logdir = logdirs)
 
     gen_expr <- function(gen_type, wrapper) {
         df %>%
