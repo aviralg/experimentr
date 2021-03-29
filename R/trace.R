@@ -55,9 +55,9 @@ tracing_index <- function(index_file,
 
     df <- mutate(df, file = file, outdir = outdir, logdir = logdir)
 
-    gen_expr <- function(type, wrapper) {
+    gen_expr <- function(get_type, wrapper) {
         df %>%
-            filter(types == type) %>%
+            filter(type == gen_type) %>%
             str_glue_data(wrapper)
     }
 
