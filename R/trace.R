@@ -40,7 +40,7 @@ tracing_index <- function(index_file,
     df <- read_fst(index_file) %>%
         filter(type %in% types) %>%
         filter(package %in% packages) %>%
-        filter(type != "testthat" | !str_starts("helper-"))
+        filter(type != "testthat" | str_starts(filename, "test-"))
 
     file_suffix <- pmap_chr(df,
                             function(type, package, subdir, filename) {
@@ -55,39 +55,25 @@ tracing_index <- function(index_file,
 
     logdirs <- paste0(outdirs, "/")
 
-    df <- mutate(df, file = file, outdir = outdirs, logdir = logdirs)
-
     gen_expr <- function(gen_type, wrapper) {
         df %>%
             filter(type == gen_type) %>%
             str_glue_data(wrapper)
     }
 
-    exprs <- c()
+    df <- mutate(df, file = file, outdir = outdirs, logdir = logdirs)
 
+    df <-
+        df %>%
+        mutate(expr = case_when(type == "testthat" ~ str_glue_data(., testthat_wrapper),
+                                type == "test" ~ str_glue_data(., test_wrapper),
+                                type == "example" ~ str_glue_data(., example_wrapper),
+                                type == "vignette" ~ str_glue_data(., vignette_wrapper)))
 
-    if("testthat" %in% types) {
-        exprs <- c(exprs, gen_expr("testthat", testthat_wrapper))
-    }
+    write_lines(df$expr, expr_index_file)
+    write_lines(df$outdir, outdir_index_file)
+    write_lines(df$logdir, logdir_index_file)
 
-    if("test" %in% types) {
-        exprs <- c(exprs, gen_expr("test", test_wrapper))
-    }
-
-    if("example" %in% types) {
-        exprs <- c(exprs, gen_expr("example", example_wrapper))
-    }
-
-    if("vignette" %in% types) {
-        exprs <- c(exprs, gen_expr("vignette", vignette_wrapper))
-    }
-
-    write_lines(exprs, expr_index_file)
-    write_lines(outdirs, outdir_index_file)
-    write_lines(logdirs, logdir_index_file)
-
-    tibble(exprs = exprs,
-           outdirs = outdirs,
-           logdirs = logdirs)
+    select(df, exprs, outdirs, logdirs)
 }
 
