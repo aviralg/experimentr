@@ -50,9 +50,9 @@ tracing_index <- function(index_file,
 
     file <- map2_chr(indir, file_suffix, path_join2)
 
-    outdir <- map2_chr(outdir, file_kernel, path_join2)
+    outdirs <- map2_chr(outdir, file_kernel, path_join2)
 
-    logdir <- paste0(outdir, "/")
+    logdirs <- paste0(outdir, "/")
 
     df <- mutate(df, file = file, outdir = outdir, logdir = logdir)
 
