@@ -102,7 +102,7 @@ write_trace <- function(trace,
                         outdir,
                         output = TRUE,
                         statistics = TRUE,
-                        result = FALSE,
+                        value = FALSE,
                         error = TRUE) {
     if(output) {
         output_dir <- path_join(c(outdir, "output"))
@@ -118,7 +118,7 @@ write_trace <- function(trace,
 
     result_dir <- path_join(c(outdir, "result"))
 
-    if(result && is.null(trace$result$error)) {
+    if(value && is.null(trace$result$error)) {
         dir_create(result_dir)
 
         filepath <- path_ext_set(path_join(c(result_dir, "value")), "RDS")
@@ -141,4 +141,6 @@ write_trace <- function(trace,
 
         write_file(contents, filepath)
     }
+
+    invisible(trace)
 }
