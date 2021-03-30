@@ -14,7 +14,7 @@ write_tracing_result <- function(result, dir) {
 
 #' @export
 #' @importFrom utils installed.packages
-#' @importFrom dplyr filter
+#' @importFrom dplyr filter case_when
 #' @importFrom fst read_fst
 #' @importFrom readr write_lines
 #' @importFrom fs path_join path_ext_remove
@@ -53,7 +53,7 @@ tracing_index <- function(index_file,
 
     outdirs <- map2_chr(outdir, file_kernel, path_join2)
 
-    logdirs <- paste0(outdirs, "/")
+    logdirs <- outdirs
 
     gen_expr <- function(gen_type, wrapper) {
         df %>%
@@ -74,6 +74,28 @@ tracing_index <- function(index_file,
     write_lines(df$outdir, outdir_index_file)
     write_lines(df$logdir, logdir_index_file)
 
-    select(df, exprs, outdirs, logdirs)
+    select(df, expr, outdir, logdir)
 }
 
+#' @importFrom fst write_fst
+#' @importFrom fs path_join
+write_tables <- function(tables, outdir) {
+
+    if(is.null(tables)) {
+        return()
+    }
+
+    table_names <- names(tables)
+
+    for(table_name in table_names) {
+        table <- tables[[table_name]]
+        filepath <- path_join(c(outdir, paste0(table_name, ".fst")))
+        write_fst(table, filepath)
+    }
+}
+
+#' @export
+write_trace <- function(trace, outdir) {
+    write_tables(trace$output, outdir)
+    write_tables(trace$statistics, outdir)
+}
