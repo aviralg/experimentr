@@ -1,6 +1,6 @@
 
-' @export
-' @importFrom utils installed.packages
+#' @export
+#' @importFrom utils installed.packages
 #' @importFrom tibble tibble
 #' @importFrom dplyr bind_rows slice pull arrange desc count filter
 #' @importFrom stringr str_trim str_remove str_split

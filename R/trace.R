@@ -78,7 +78,7 @@ tracing_index <- function(index_file,
 }
 
 #' @importFrom fst write_fst
-#' @importFrom fs path_join
+#' @importFrom fs path_join path_ext_set
 write_tables <- function(tables, outdir) {
 
     if(is.null(tables)) {
@@ -89,13 +89,56 @@ write_tables <- function(tables, outdir) {
 
     for(table_name in table_names) {
         table <- tables[[table_name]]
-        filepath <- path_join(c(outdir, paste0(table_name, ".fst")))
+        filepath <- path_ext_set(path_join(c(outdir, table_name)), "fst")
         write_fst(table, filepath)
     }
 }
 
 #' @export
-write_trace <- function(trace, outdir) {
-    write_tables(trace$output, outdir)
-    write_tables(trace$statistics, outdir)
+#' @importFrom stringr str_glue
+#' @importFrom fs path_join path_ext_set dir_create
+#' @importFrom readr write_file
+write_trace <- function(trace,
+                        outdir,
+                        output = TRUE,
+                        statistics = TRUE,
+                        result = FALSE,
+                        error = TRUE) {
+    if(output) {
+        output_dir <- path_join(c(outdir, "output"))
+        dir_create(output_dir)
+        write_tables(trace$output, output_dir)
+    }
+
+    if(statistics) {
+        statistics_dir <- path_join(c(outdir, "statistics"))
+        dir_create(statistics_dir)
+        write_tables(trace$statistics, statistics_dir)
+    }
+
+    result_dir <- path_join(c(outdir, "result"))
+
+    if(result && is.null(trace$result$error)) {
+        dir_create(result_dir)
+
+        filepath <- path_ext_set(path_join(c(result_dir, "value")), "RDS")
+
+        saveRDS(trace$result$value, filepath)
+    }
+
+    if(error && !is.null(trace$result$error)) {
+        dir_create(result_dir)
+
+        filepath <- path_ext_set(path_join(c(result_dir, "error")), "txt")
+
+        contents <- str_glue("MESSAGE: {message}",
+                             "CALL:    {call}",
+                             "SOURCE:  {source}",
+                             message = trace$result$error$message,
+                             call = as.character(trace$result$error$call),
+                             source = trace$result$error$source,
+                             .sep = "\n")
+
+        write_file(contents, filepath)
+    }
 }
