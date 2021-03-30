@@ -135,7 +135,7 @@ write_trace <- function(trace,
                              "CALL:    {call}",
                              "SOURCE:  {source}",
                              message = trace$result$error$message,
-                             call = as.character(trace$result$error$call),
+                             call = deparse(trace$result$error$call),
                              source = trace$result$error$source,
                              .sep = "\n")
 
