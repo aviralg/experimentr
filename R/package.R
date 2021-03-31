@@ -10,7 +10,11 @@ select_packages <- function(n = 500,
                             packages = installed.packages()[,1],
                             fields = c("Depends", "Imports"),
                             corpusfile = NULL,
-                            clientfile = NULL) {
+                            clientfile = NULL,
+                            ignore = c("base", "compiler", "datasets", "grDevices",
+                                       "graphics", "grid", "methods", "parallel",
+                                       "profile", "splines", "stats", "stats4",
+                                       "tcltk", "tools", "translations", "utils")) {
 
     ## filter only from list of supplied packages and fields
     package_table <- installed.packages()[packages, fields]
@@ -28,7 +32,6 @@ select_packages <- function(n = 500,
             str_trim(str_remove(s, "\\([a-zA-Z0-9.>=<[:space:]-]*\\)"))
         })
 
-
     df <-
         lapply(1:length(dependencies),
            function(index) {
@@ -37,7 +40,7 @@ select_packages <- function(n = 500,
 
            }) %>%
     bind_rows() %>%
-    filter(!(corpus %in% c("R", "NA")))
+    filter(!(corpus %in% c("", "R", "NA", ignore)))
 
     corpuses <-
         df %>%
