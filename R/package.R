@@ -6,7 +6,7 @@
 #' @importFrom stringr str_trim str_remove str_split
 #' @importFrom fs path_dir dir_create
 #' @importFrom readr write_lines
-select_packages <- function(n = 500,
+select_packages <- function(rank = 1:500,
                             packages = installed.packages()[,1],
                             fields = c("Depends", "Imports"),
                             corpusfile = NULL,
@@ -46,7 +46,7 @@ select_packages <- function(n = 500,
         df %>%
         count(corpus, name = "count") %>%
         arrange(desc(count)) %>%
-        slice(1:n) %>%
+        slice(rank) %>%
         pull(corpus)
 
     clients <-
