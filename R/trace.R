@@ -144,3 +144,54 @@ write_trace <- function(trace,
 
     invisible(trace)
 }
+
+#' @export
+#' @importFrom fst read_fst
+#' @importFrom readr read_csv read_file
+#' @importFrom fs path_ext is_dir
+read_any <- function(path, lazy = TRUE, ...) {
+
+    if(is_dir(path)) {
+        dir_as_env(path, lazy = lazy, ...)
+    }
+    else {
+        ext <- path_ext(path)
+
+        if(ext == "fst") {
+            read_fst(path)
+        }
+        else if(ext == "csv") {
+            read_csv(path)
+        }
+        else {
+            read_file(path)
+        }
+    }
+}
+
+#' @export
+#' @importFrom purrr walk
+#' @importFrom fs path_ext_remove dir_ls path_file is_dir
+dir_as_env <- function(path, lazy = TRUE, ...) {
+
+    if(!is_dir(path)) {
+        stop(sprintf("argument %s is not a directory", path), call. = TRUE)
+    }
+
+    paths <- dir_ls(path, ...)
+
+    env <- new.env(parent = emptyenv())
+
+    walk(paths, function(path) {
+        path <- path
+        filename <- path_ext_remove(path_file(path))
+        if(lazy) {
+            delayedAssign(filename, read_any(path, lazy = lazy, ...), assign.env = env)
+        }
+        else {
+            assign(filename, value = read_any(path, lazy = lazy, ...), envir = env)
+        }
+    })
+
+    env
+}
