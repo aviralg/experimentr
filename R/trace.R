@@ -16,24 +16,23 @@ write_tracing_result <- function(result, dir) {
 #' @importFrom utils installed.packages
 #' @importFrom dplyr filter case_when
 #' @importFrom fst read_fst
-#' @importFrom readr write_lines
+#' @importFrom readr write_lines write_file read_file
 #' @importFrom fs path_join path_ext_remove
-#' @importFrom purrr map2_chr pmap_chr
+#' @importFrom purrr map2_chr pmap_chr map2
 #' @importFrom stringr str_glue_data str_starts
 #' @importFrom magrittr %>%
 #' @importFrom tibble tibble
 tracing_index <- function(index_file,
                           indir,
                           outdir,
-                          expr_index_file,
-                          outdir_index_file,
+                          outfile_index_file,
                           logdir_index_file,
                           packages = installed.packages()[,1],
                           types = c("test", "testthat", "example", "vignette"),
-                          test_wrapper = "trace <- trace_file('{file}'); experimentr::write_trace(trace, '{outdir}')",
+                          test_wrapper = "trace <- trace_expr('{code}'); experimentr::write_trace(trace, '{outdir}')",
                           testthat_wrapper = "trace <- trace_expr(testthat::test_file('{file}', package='{package}')); experimentr::write_trace(trace, '{outdir}')",
-                          example_wrapper = "trace <- trace_file('{file}'); experimentr::write_trace(trace, '{outdir}')",
-                          vignette_wrapper = "trace <- trace_file('{file}');  experimentr::write_trace(trace, '{outdir}')") {
+                          example_wrapper = "trace <- trace_expr('{code}'); experimentr::write_trace(trace, '{outdir}')",
+                          vignette_wrapper = "trace <- trace_expr('{code}');  experimentr::write_trace(trace, '{outdir}')") {
 
     path_join2 <- function(x, y) path_join(c(x, y))
 
@@ -53,28 +52,29 @@ tracing_index <- function(index_file,
 
     outdirs <- map2_chr(outdir, file_kernel, path_join2)
 
+    outfiles <- map2_chr(outdirs, "program.R", path_join2)
+
     logdirs <- outdirs
-
-    gen_expr <- function(gen_type, wrapper) {
-        df %>%
-            filter(type == gen_type) %>%
-            str_glue_data(wrapper)
-    }
-
-    df <- mutate(df, file = file, outdir = outdirs, logdir = logdirs)
 
     df <-
         df %>%
+        mutate(file = file, outdir = outdirs, outfile = outfiles, logdir = logdirs) %>%
+        mutate(code = map_chr(file, read_file)) %>%
         mutate(expr = case_when(type == "testthat" ~ str_glue_data(., testthat_wrapper),
                                 type == "test" ~ str_glue_data(., test_wrapper),
                                 type == "example" ~ str_glue_data(., example_wrapper),
                                 type == "vignette" ~ str_glue_data(., vignette_wrapper)))
 
-    write_lines(df$expr, expr_index_file)
-    write_lines(df$outdir, outdir_index_file)
+    ## create directories to store wrapped programs
+    dir_create(outdirs)
+
+    ## save programs
+    map2(df$code, df$outfile, write_file)
+
+    write_lines(df$outfile, outfile_index_file)
     write_lines(df$logdir, logdir_index_file)
 
-    select(df, expr, outdir, logdir)
+    select(df, outfile, logdir)
 }
 
 #' @importFrom fst write_fst
