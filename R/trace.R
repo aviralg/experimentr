@@ -69,12 +69,19 @@ tracing_index <- function(index_file,
     dir_create(outdirs)
 
     ## save programs
-    map2(df$code, df$outfile, write_file)
+    write_file_checked <- function(expr, file) {
+        tryCatch(write_file(expr, file),
+                 error = function(e) {
+                     print(e)
+                     stop(sprintf("Error writing to file %s content %s", file, expr))
+                 })
+    }
+    map2(df$expr, df$outfile, write_file_checked)
 
     write_lines(df$outfile, outfile_index_file)
     write_lines(df$logdir, logdir_index_file)
 
-    select(df, outfile, logdir)
+    select(df, expr, outfile, logdir)
 }
 
 #' @importFrom fst write_fst
