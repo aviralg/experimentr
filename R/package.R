@@ -53,7 +53,8 @@ select_packages <- function(rank = 1:500,
         df %>%
         filter(corpus %in% corpuses) %>%
         pull(client) %>%
-        unique()
+        unique() %>%
+        setdiff(corpuses)
 
     if(!is.null(corpusfile)) {
         dir_create(path_dir(corpusfile))
