@@ -24,3 +24,8 @@ pad <- function(str, max, char = "", truncate = FALSE) {
         paste0(str, spaces, collapse = "", sep = "")
     }
 }
+
+#' @export
+run_length_encoding <- function(input) {
+    .Call(C_experimentr_run_length_encoding, input)
+}
