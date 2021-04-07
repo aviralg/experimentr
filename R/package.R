@@ -103,7 +103,7 @@ package_table <- function(fields = c("Depends", "Imports"),
 
     df <-
         seq2_along(1, dependencies) %>%
-        map_dfr(~tibble(client = packages[.], package = dependencies[[.]])) %>%
+        map_dfr(~tibble(package = dependencies[[.]], client = packages[.])) %>%
         filter(!(package %in% c("", "R", "NA", ignore))) %>%
         filter(!(client %in% c("", "R", "NA", ignore)))
 
