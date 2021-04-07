@@ -27,5 +27,5 @@ pad <- function(str, max, char = "", truncate = FALSE) {
 
 #' @export
 run_length_encoding <- function(input) {
-    .Call(C_experimentr_run_length_encoding, input)
+    .Call(r_experimentr_run_length_encoding, input)
 }
