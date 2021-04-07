@@ -68,3 +68,44 @@ select_packages <- function(rank = 1:500,
 
     list(corpus = corpuses, client = clients)
 }
+
+#' @export
+#' @importFrom utils installed.packages
+#' @importFrom stringr str_split str_trim str_remove
+#' @importFrom rlang seq2_along
+#' @importFrom dplyr filter
+#' @importFrom purrr map_dfr
+package_table <- function(fields = c("Depends", "Imports"),
+                          ignore = c("base", "compiler", "datasets", "grDevices",
+                                     "graphics", "grid", "methods", "parallel",
+                                     "profile", "splines", "stats", "stats4",
+                                     "tcltk", "tools", "translations", "utils")) {
+
+    ## filter only from list of supplied packages and fields
+    tbl <- installed.packages()
+
+    packages <- unname(tbl[,1])
+
+    tbl <- tbl[, fields]
+
+    dependencies <- tbl[,fields[1]]
+
+    for(field in fields[-1]) {
+        dependencies <- paste(dependencies, ", ", tbl[, field])
+    }
+
+    dependencies <-
+        dependencies %>%
+        str_split(",") %>%
+        map(function(s) {
+            str_trim(str_remove(s, "\\([a-zA-Z0-9.>=<[:space:]-]*\\)"))
+        })
+
+    df <-
+        seq2_along(1, dependencies) %>%
+        map_dfr(~tibble(client = packages[.], package = dependencies[[.]])) %>%
+        filter(!(package %in% c("", "R", "NA", ignore))) %>%
+        filter(!(client %in% c("", "R", "NA", ignore)))
+
+    df
+}
