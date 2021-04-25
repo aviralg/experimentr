@@ -11,7 +11,7 @@ r_expr <- function(expr,
                    r_exec = current_r_exec(),
                    args = c("--vanilla", "--slave"),
                    invisible = FALSE) {
-    if(invisible) {
+    if (invisible) {
         expr <- str_c("invisible(", expr, ")", sep = "");
     }
     expr <- str_c("\"", expr, "\"")
@@ -26,7 +26,7 @@ r_expr <- function(expr,
 r_file <- function(file,
                    r_exec = current_r_exec(),
                    args = c("--vanilla", "--slave")) {
-    if(path_ext(file) == "fst") {
+    if (path_ext(file) == "fst") {
         df <- read_fst(file)
         new_file <- path_ext_set(file, "csv")
         write_csv(df, new_file)

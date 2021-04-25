@@ -8,11 +8,11 @@ compute_sloc <- function(path,
                          ...) {
     sloc <- engine(path, ...)
 
-    if(split) {
+    if (split) {
         sloc <- split_sloc(sloc, path)
     }
 
-    if(!is.null(output_filepath)) {
+    if (!is.null(output_filepath)) {
         dir_create(path_dir(output_filepath), recurse=TRUE)
         write_fst(sloc, output_filepath)
     }
@@ -42,12 +42,12 @@ sloc_cloc_engine <- function(binary = "cloc",
 
         print(str(result))
 
-        if(result$status == 0) {
+        if (result$status == 0) {
             result$stdout <- str_replace(result$stdout, ',"github.com/AlDanial/cloc.*', "")
         }
 
         if (length(result$stdout) > 0) {
-            sloc <- read_delim(result$stdout, delim=';' ,col_types="cciii")
+            sloc <- read_delim(result$stdout, delim=";", col_types="cciii")
             sloc <- head(sloc, -1)
             rename(sloc, filepath = filename)
         } else {

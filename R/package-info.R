@@ -14,7 +14,7 @@ get_ns_path <- function(ns) {
 
     namespace <- get0(".__NAMESPACE__.", ns, inherits = FALSE, ifnotfound = NULL)
 
-    if(!is.null(namespace)) {
+    if (!is.null(namespace)) {
         path <- get0("path", namespace, inherits = FALSE, ifnotfound = NA_character_)
     }
     path
@@ -75,20 +75,20 @@ get_one_package_info <- function(package) {
 #' @export
 get_package_info <- function(packages, progress = FALSE, output_filepath = NULL) {
 
-    if(progress) {
+    if (progress) {
         pb <- progress_bar$new(format = "Processing :what [:bar] :current/:total (:percent) eta: :eta",
                                total = length(packages),
                                width = 80)
     }
 
     helper  <- function(package, ...) {
-        if(progress) pb$tick(tokens = list(what = pad(package, 15)))
+        if (progress) pb$tick(tokens = list(what = pad(package, 15)))
         get_one_package_info(package, ...)
     }
 
     result <- bind_rows(map(packages, helper))
 
-    if(!is.null(output_filepath)) {
+    if (!is.null(output_filepath)) {
         dir_create(path_dir(output_filepath), recurse = TRUE)
         write_fst(result, output_filepath)
     }

@@ -12,18 +12,18 @@ merge_tables <- function(files,
 
     df <- map_dfr(files, reader)
 
-    if(!is.null(output_filepath)) {
+    if (!is.null(output_filepath)) {
         writer(df, output_filepath)
     }
 
-    if(remove_files) {
+    if (remove_files) {
         file_delete(files)
 
-        if(remove_empty_dirs) {
+        if (remove_empty_dirs) {
             dirs <- unique(path_dir(files))
             walk(dirs, function(dir) {
                 n <- length(dir_ls(dir))
-                if(n == 0) {
+                if (n == 0) {
                     dir_delete(dir)
                 }
             })
@@ -67,15 +67,15 @@ merge_logs <- function(log_dirs,
 
     print(result, n = 10)
 
-    if(!is.null(output_filepath)) {
+    if (!is.null(output_filepath)) {
         writer(result, output_filepath)
     }
 
-    if(remove_logs) {
+    if (remove_logs) {
         dir_delete(log_dirs)
     }
 
-    if(remove_job_log) {
+    if (remove_job_log) {
         file_delete(job_log_file)
     }
 

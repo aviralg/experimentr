@@ -1,7 +1,7 @@
 
 #' @importFrom tools file_path_sans_ext
 replace_extension <- function(paths, extension) {
-    if(length(paths) == 0) {
+    if (length(paths) == 0) {
         character(0)
     }
     else {
@@ -16,7 +16,7 @@ pad <- function(str, max, char = "", truncate = FALSE) {
 
     if (n == max) str
     else if (n > max) {
-        if(truncate) substr(str, 1, max)
+        if (truncate) substr(str, 1, max)
         else str
     }
     else {

@@ -5,7 +5,7 @@
 write_tracing_result <- function(result, dir) {
     dir_create(dir, recurse = TRUE)
     data <- result$data
-    for(name in names(data)) {
+    for (name in names(data)) {
         file <- path_ext_set(path_join(c(dir, name)), ext = "fst")
         write_fst(data[[name]], file)
     }
@@ -27,7 +27,7 @@ tracing_index <- function(index_file,
                           outdir,
                           outfile_index_file,
                           logdir_index_file,
-                          packages = installed.packages()[,1],
+                          packages = installed.packages()[, 1],
                           types = c("test", "testthat", "example", "vignette"),
                           test_wrapper = "trace <- trace_expr('{code}'); experimentr::write_trace(trace, '{outdir}')",
                           testthat_wrapper = "trace <- trace_expr(testthat::test_file('{file}', package='{package}')); experimentr::write_trace(trace, '{outdir}')",
@@ -46,7 +46,7 @@ tracing_index <- function(index_file,
                                 path_join(c(type, package, subdir, filename))
                             })
 
-    file_kernel = path_ext_remove(file_suffix)
+    file_kernel <- path_ext_remove(file_suffix)
 
     file <- map2_chr(indir, file_suffix, path_join2)
 
@@ -88,13 +88,13 @@ tracing_index <- function(index_file,
 #' @importFrom fs path_join path_ext_set
 write_tables <- function(tables, outdir) {
 
-    if(is.null(tables)) {
+    if (is.null(tables)) {
         return()
     }
 
     table_names <- names(tables)
 
-    for(table_name in table_names) {
+    for (table_name in table_names) {
         table <- tables[[table_name]]
         filepath <- path_ext_set(path_join(c(outdir, table_name)), "fst")
         write_fst(table, filepath)
@@ -111,13 +111,13 @@ write_trace <- function(trace,
                         statistics = TRUE,
                         value = FALSE,
                         error = TRUE) {
-    if(output) {
+    if (output) {
         output_dir <- path_join(c(outdir, "output"))
         dir_create(output_dir)
         write_tables(trace$output, output_dir)
     }
 
-    if(statistics) {
+    if (statistics) {
         statistics_dir <- path_join(c(outdir, "statistics"))
         dir_create(statistics_dir)
         write_tables(trace$statistics, statistics_dir)
@@ -125,7 +125,7 @@ write_trace <- function(trace,
 
     result_dir <- path_join(c(outdir, "result"))
 
-    if(value && is.null(trace$result$error)) {
+    if (value && is.null(trace$result$error)) {
         dir_create(result_dir)
 
         filepath <- path_ext_set(path_join(c(result_dir, "value")), "RDS")
@@ -133,7 +133,7 @@ write_trace <- function(trace,
         saveRDS(trace$result$value, filepath)
     }
 
-    if(error && !is.null(trace$result$error)) {
+    if (error && !is.null(trace$result$error)) {
         dir_create(result_dir)
 
         filepath <- path_ext_set(path_join(c(result_dir, "error")), "txt")
@@ -158,16 +158,16 @@ write_trace <- function(trace,
 #' @importFrom fs path_ext is_dir
 read_any <- function(path, lazy = TRUE, ...) {
 
-    if(is_dir(path)) {
+    if (is_dir(path)) {
         dir_as_env(path, lazy = lazy, ...)
     }
     else {
         ext <- path_ext(path)
 
-        if(ext == "fst") {
+        if (ext == "fst") {
             read_fst(path)
         }
-        else if(ext == "csv") {
+        else if (ext == "csv") {
             read_csv(path)
         }
         else {
@@ -181,7 +181,7 @@ read_any <- function(path, lazy = TRUE, ...) {
 #' @importFrom fs path_ext_remove dir_ls path_file is_dir
 dir_as_env <- function(path, lazy = TRUE, ...) {
 
-    if(!is_dir(path)) {
+    if (!is_dir(path)) {
         stop(sprintf("argument %s is not a directory", path), call. = TRUE)
     }
 
@@ -192,7 +192,7 @@ dir_as_env <- function(path, lazy = TRUE, ...) {
     walk(paths, function(path) {
         path <- path
         filename <- path_ext_remove(path_file(path))
-        if(lazy) {
+        if (lazy) {
             delayedAssign(filename, read_any(path, lazy = lazy, ...), assign.env = env)
         }
         else {

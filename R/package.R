@@ -7,7 +7,7 @@
 #' @importFrom fs path_dir dir_create
 #' @importFrom readr write_lines
 select_packages <- function(rank = 1:500,
-                            packages = installed.packages()[,1],
+                            packages = installed.packages()[, 1],
                             fields = c("Depends", "Imports"),
                             corpusfile = NULL,
                             clientfile = NULL,
@@ -19,9 +19,9 @@ select_packages <- function(rank = 1:500,
     ## filter only from list of supplied packages and fields
     package_table <- installed.packages()[packages, fields]
 
-    dependencies <- package_table[,fields[1]]
+    dependencies <- package_table[, fields[1]]
 
-    for(field in fields[-1]) {
+    for (field in fields[-1]) {
         dependencies <- paste(dependencies, ", ", package_table[, field])
     }
 
@@ -33,7 +33,7 @@ select_packages <- function(rank = 1:500,
         })
 
     df <-
-        lapply(1:length(dependencies),
+        lapply(seq_len(length(dependencies)),
            function(index) {
                tibble(client = packages[index],
                       corpus = dependencies[[index]])
@@ -56,12 +56,12 @@ select_packages <- function(rank = 1:500,
         unique() %>%
         setdiff(corpuses)
 
-    if(!is.null(corpusfile)) {
+    if (!is.null(corpusfile)) {
         dir_create(path_dir(corpusfile))
         write_lines(corpuses, corpusfile)
     }
 
-    if(!is.null(clientfile)) {
+    if (!is.null(clientfile)) {
         dir_create(path_dir(clientfile))
         write_lines(clients, clientfile)
     }
@@ -84,13 +84,13 @@ package_table <- function(fields = c("Depends", "Imports"),
     ## filter only from list of supplied packages and fields
     tbl <- installed.packages()
 
-    packages <- unname(tbl[,1])
+    packages <- unname(tbl[, 1])
 
     tbl <- tbl[, fields]
 
-    dependencies <- tbl[,fields[1]]
+    dependencies <- tbl[, fields[1]]
 
-    for(field in fields[-1]) {
+    for (field in fields[-1]) {
         dependencies <- paste(dependencies, ", ", tbl[, field])
     }
 

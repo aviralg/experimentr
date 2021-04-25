@@ -18,14 +18,14 @@ extract_code <- function(packages,
                          filter_empty = TRUE,
                          add_library_call = c("example", "vignette", "test")) {
 
-    if(progress) {
+    if (progress) {
         pb <- progress_bar$new(format = "Processing :what [:bar] :current/:total (:percent) eta: :eta",
                                total = length(packages),
                                width = 80)
     }
 
     helper  <- function(package, ...) {
-        if(progress) pb$tick(tokens = list(what = pad(package, 15)))
+        if (progress) pb$tick(tokens = list(what = pad(package, 15)))
         extract_code_helper(package, ...)
     }
 
@@ -52,15 +52,15 @@ extract_code <- function(packages,
                                  content))
     }
 
-    for(type in add_library_call) {
+    for (type in add_library_call) {
         result <- prepend_library(result, type)
     }
 
-    if(!is.null(index_filepath) && !is.null(result)) {
+    if (!is.null(index_filepath) && !is.null(result)) {
         write_fst(select(result, -content), index_filepath)
     }
 
-    if(!is.null(data_dirpath)) {
+    if (!is.null(data_dirpath)) {
         result <- write_code_result(result, data_dirpath)
     }
 
@@ -109,16 +109,16 @@ extract_code_helper <- function(package, type, ...) {
         bind_rows(result, fun(package))
     }
 
-    if("example" %in% type) {
+    if ("example" %in% type) {
         result <- helper(extract_examples_helper)
     }
-    if("testthat" %in% type) {
+    if ("testthat" %in% type) {
         result <- helper(extract_testthats_helper)
     }
-    if("test" %in% type) {
+    if ("test" %in% type) {
         result <- helper(extract_tests_helper)
     }
-    if("vignette" %in% type) {
+    if ("vignette" %in% type) {
         result <- helper(extract_vignettes_helper)
     }
 
@@ -280,7 +280,7 @@ extract_tests_helper <- function(package) {
 
     result <- NULL
 
-    if(tests_dirpath != "" && testthat_dirpath == "") {
+    if (tests_dirpath != "" && testthat_dirpath == "") {
         filepaths <- c(dir_ls(tests_dirpath, glob = "*.R"),
                        dir_ls(tests_dirpath, glob = "*.r"))
 
