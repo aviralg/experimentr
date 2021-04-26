@@ -17,7 +17,7 @@ Result <- R6Class(
         },
 
         exitcode = function() {
-            super$file("stdout.int")
+            super$file("exitcode.int")
         },
 
         runtime = function() {
