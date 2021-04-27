@@ -62,7 +62,7 @@ AndTask <- R6Class(
 }
 
 #' @export
-`%<&+>%` <- function(task1, task2) {
+`%<+&+>%` <- function(task1, task2) {
 
     name1 <- task1$name()
     name2 <- task2$name()
