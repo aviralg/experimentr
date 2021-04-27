@@ -2,6 +2,7 @@
 #' @export
 #' @importFrom cli cli_h1 cli_h2 cli_h3 style_bold
 #' @importFrom cli cli_alert_success cli_alert_danger
+#' @importFrom bench as_bench_time
 #' @importFrom R6 R6Class
 CommandLineInterface <- R6Class(
 
@@ -40,7 +41,7 @@ CommandLineInterface <- R6Class(
 
             fun <- if(exitcode == 0) cli_alert_success else cli_alert_danger
             cat("\n")
-            fun(style_bold("{task$name()} finished with exit code {exitcode} in {runtime$real}"))
+            fun(style_bold("{task$name()} finished with exit code {exitcode} in {as_bench_time(runtime$real)}"))
 
             private$.decrement_depth()
         }
