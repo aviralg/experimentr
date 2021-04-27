@@ -51,7 +51,7 @@ OrTask <- R6Class(
     name1 <- task1$name()
     name2 <- task2$name()
 
-    name <- paste0("(", name1, "|", name2, ")")
+    name <- paste0(name1, "-or-", name2)
 
     description <- name
 
@@ -64,7 +64,7 @@ OrTask <- R6Class(
     name1 <- task1$name()
     name2 <- task2$name()
 
-    name <- paste0("(", name1, "|", name2, ")")
+    name <- paste0(name1, "-or+-", name2)
 
     description <- name
 
