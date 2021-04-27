@@ -1,6 +1,6 @@
 
 #' @importFrom R6 R6Class
-#' @importFrom fs path_abs
+#' @importFrom fs path_abs link_exists
 FileSystemEntry <- R6Class(
 
     "FileSystemEntry",
@@ -21,6 +21,10 @@ FileSystemEntry <- R6Class(
 
         parent = function() {
             path_dir(private$.path)
+        },
+
+        link = function() {
+            link_exists(self$path())
         }
     ),
 

@@ -57,18 +57,22 @@ ExpressionTask <- R6Class(
                 list(EXPR = self$expression())
             )
 
-            time <- bench_time({
-                result <-
-                    with_output_sink(
-                        self$result()$stdout()$path(),
-                        with_tempdir(eval(expression, envir=task_env)),
-                        append = FALSE,
-                        split = TRUE
-                    )
-            })
+            time <- unclass(
+                bench_time({
+                    result <-
+                        with_output_sink(
+                            self$result()$stdout()$path(),
+                            with_tempdir(eval(expression, envir=task_env)),
+                            append = FALSE,
+                            split = TRUE
+                        )
+                })
+            )
 
             self$result()$exitcode()$write(result[[2]])
-            self$result()$runtime()$write(tibble(process = time[1], real = time[2]))
+
+            runtime <- tibble(process = time[1], real = time[2])
+            self$result()$runtime()$write(runtime)
 
             self$result()
         }

@@ -73,13 +73,21 @@ Executor <- R6Class(
         .setup = function(input) {
             private$.parameters <- Parameters$new()
             private$.parameters$setup(input$parameters())
-            private$add_store_(private$.root, path_abs("."))
+
+            store_path <- path_abs(path(".", private$.root$name()))
+            output_path <- path(store_path, "output")
+            output <- Directory$new(output_path)
+
+            result_path <- path(store_path, "result")
+            result <- Result$new(result_path)
+
+            private$.root$setup(Store$new(store_path, output, result))
         },
 
         .teardown = function(input) {
             private$.parameters$teardown()
             private$.parameters <- NULL
-            ## TODO: remove store
+            private$.root$teardown()
         },
 
         add_store_ = function(task, parent_dir) {

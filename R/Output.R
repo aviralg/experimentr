@@ -1,7 +1,6 @@
 
 #' @export
 #' @importFrom R6 R6Class
-#' @importFrom fs path
 Output <- R6Class(
     "Output",
 
@@ -10,7 +9,7 @@ Output <- R6Class(
     public = list(
 
         initialize = function(path) {
-            super$initialize(path(path, "output"))
+            super$initialize(path)
         }
     )
 )

@@ -16,6 +16,10 @@ Task <- R6Class(
             private$.description
         },
 
+        store = function() {
+            private$.store
+        },
+
         output = function() {
             private$.output
         },
@@ -45,22 +49,29 @@ Task <- R6Class(
             private$.description <- description
         },
 
-        setup = function(config) {
-        },
-
         execute = function(executor) {
             msg <- sprintf("method 'execute' not implemented for task %s",
                            self$name())
             stop(msg)
         },
 
-        teardown = function(config) {
+        setup = function(store) {
+            private$.store <- store
+            private$.output <- store$output()
+            private$.result <- store$result()
+        },
+
+        teardown = function() {
+            private$.store <- NULL
+            private$.output <- NULL
+            private$.result <- NULL
         }
     ),
 
     private = list(
         .name = NULL,
         .description = NULL,
+        .store = NULL,
         .output = NULL,
         .result = NULL
     )

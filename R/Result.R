@@ -9,7 +9,7 @@ Result <- R6Class(
     public = list(
 
         initialize = function(path) {
-            super$initialize(fs::path(path, "result"))
+            super$initialize(path)
         },
 
         stdout = function() {

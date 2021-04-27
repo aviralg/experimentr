@@ -10,25 +10,27 @@ OrTask <- R6Class(
 
     public = list(
 
-        initialize = function(name, description, ...) {
+        initialize = function(name, description, ..., independent = TRUE) {
             tasks <- list(...)
 
-            super$initialize(name, description, tasks)
+            super$initialize(name, description, tasks, independent)
         },
 
         execute = function(executor) {
 
             results <- list()
 
-            time <- bench_time({
-                for(task in self$tasks()) {
-                    result <- executor$execute(task)
-                    results <- c(results, result)
-                    if(result$successful()) {
-                        break
+            time <- unclass(
+                bench_time({
+                    for (task in self$tasks()) {
+                        result <- executor$execute(task)
+                        results <- c(results, result)
+                        if (result$successful()) {
+                            break
+                        }
                     }
-                }
-            })
+                })
+            )
 
             stdouts <- map_chr(results, function(result) result$stdout()$read())
             stdout <- paste(stdouts, collapse = "\n")
@@ -54,4 +56,17 @@ OrTask <- R6Class(
     description <- name
 
     OrTask$new(name, description, task1, task2)
+}
+
+#' @export
+`%<|+>%` <- function(task1, task2) {
+
+    name1 <- task1$name()
+    name2 <- task2$name()
+
+    name <- paste0("(", name1, "|", name2, ")")
+
+    description <- name
+
+    OrTask$new(name, description, task1, task2, independent = FALSE)
 }

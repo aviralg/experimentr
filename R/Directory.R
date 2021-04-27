@@ -1,7 +1,6 @@
-
 #' @export
 #' @importFrom R6 R6Class
-#' @importFrom fs dir_create path
+#' @importFrom fs dir_create link_create path
 Directory <- R6Class(
 
     "Directory",
@@ -10,9 +9,15 @@ Directory <- R6Class(
 
     public = list(
 
-        initialize = function(path) {
+        initialize = function(path, link = NULL) {
             super$initialize(path)
-            dir_create(path)
+
+            if (is.null(link)) {
+                dir_create(path)
+            } else {
+                dir_create(path_dir(path))
+                link_create(link, path)
+            }
         },
 
         dir = function(dirname) {
