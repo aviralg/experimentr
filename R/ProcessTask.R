@@ -47,7 +47,8 @@ ProcessTask <- R6Class(
                               echo_cmd = TRUE,
                               echo = TRUE,
                               encoding = "",
-                              cleanup_tree = FALSE) {
+                              cleanup_tree = FALSE,
+                              inputs = list()) {
 
             private$.command <- substitute(command)
             private$.arguments <- eval(substitute(expression(...)))
@@ -79,7 +80,7 @@ ProcessTask <- R6Class(
                     CLEANUP_TREE = private$.cleanup_tree)
             )
 
-            super$initialize(name, description, expr, quote = FALSE)
+            super$initialize(name, description, expr, inputs = inputs, quote = FALSE)
         }
     ),
 

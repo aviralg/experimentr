@@ -2,7 +2,7 @@
 #' @export
 #' @importFrom R6 R6Class
 #' @importFrom dplyr bind_rows
-#' @importFrom purrr map_chr
+#' @importFrom purrr map_chr flatten map
 #' @importFrom bench bench_time
 MergeTask <- R6Class(
 
@@ -19,7 +19,12 @@ MergeTask <- R6Class(
             names(private$.tasks) <- map_chr(private$.tasks, function(task) task$name())
         },
 
+        inputs = function() {
+            unique(flatten(map(private$.tasks, function(task) task$inputs())))
+        },
+
         setup = function(store) {
+
             super$setup(store)
 
             for (task in private$.tasks) {

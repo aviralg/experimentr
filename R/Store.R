@@ -9,11 +9,12 @@ Store <- R6Class(
 
     public = list(
 
-        initialize = function(path, output, result, link = NULL) {
+        initialize = function(path, output, result, input, link = NULL) {
             super$initialize(path, link)
 
             private$.output <- output
             private$.result <- result
+            private$.input <- input
         },
 
         output = function() {
@@ -22,11 +23,16 @@ Store <- R6Class(
 
         result = function() {
             private$.result
+        },
+
+        input = function() {
+            private$.input
         }
     ),
 
     private = list(
         .output = NULL,
-        .result = NULL
+        .result = NULL,
+        .input = NULL
     )
 )

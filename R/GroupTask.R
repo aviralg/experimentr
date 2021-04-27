@@ -42,7 +42,10 @@ GroupTask <- R6Class(
                 result_path <- path(store_path, "tasks", task$name(), "result")
                 result <- Result$new(result_path)
 
-                task_store <- Store$new(store_path, output, result)
+                input_path <- path(store_path, "tasks", task$name(), "input")
+                input <- Input$new(input_path, task$inputs())
+
+                task_store <- Store$new(store_path, output, result, input)
                 task$setup(task_store)
             }
         },

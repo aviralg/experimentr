@@ -19,12 +19,12 @@ Executor <- R6Class(
 
             root <- private$.root
 
-            if(root$name() != task_names[1]) {
+            if (root$name() != task_names[1]) {
                 msg <- sprintf("task %s not found", task_names[1])
                 stop(msg)
             }
 
-            for(task_index in seq2_along(2, task_names)) {
+            for( task_index in seq2_along(2, task_names)) {
                 task_name <- task_names[task_index]
                 root <- root$task(task_name)
             }
@@ -33,7 +33,7 @@ Executor <- R6Class(
         },
 
         apply = function(input) {
-            if(input$describe()) {
+            if (input$describe()) {
                 self$describe(task = input$task())
             } else {
                 private$.setup(input)
@@ -75,13 +75,17 @@ Executor <- R6Class(
             private$.parameters$setup(input$parameters())
 
             store_path <- path_abs(path(".", private$.root$name()))
+
             output_path <- path(store_path, "output")
             output <- Directory$new(output_path)
 
             result_path <- path(store_path, "result")
             result <- Result$new(result_path)
 
-            private$.root$setup(Store$new(store_path, output, result))
+            input_path <- path(store_path, "input")
+            input <- Input$new(input_path, private$.root$inputs())
+
+            private$.root$setup(Store$new(store_path, output, result, input))
         },
 
         .teardown = function(input) {
@@ -95,8 +99,8 @@ Executor <- R6Class(
             task$set_output(Output$new(root_dir))
             task$set_result(Result$new(root_dir))
 
-            if(inherits(task, "GroupTask")) {
-                for(sub_task in task$tasks()) {
+            if (inherits(task, "GroupTask")) {
+                for (sub_task in task$tasks()) {
                     private$add_store_(sub_task, root_dir)
                 }
             }

@@ -25,10 +25,11 @@ ExpressionTask <- R6Class(
                               description,
                               expression,
                               complete,
+                              inputs = list(),
                               quote = TRUE,
                               environment = parent.frame()) {
 
-            super$initialize(name, description)
+            super$initialize(name, description, inputs)
 
             private$.expression <- if (quote) substitute(expression) else expression
 

@@ -20,8 +20,8 @@ Directory <- R6Class(
             }
         },
 
-        dir = function(dirname) {
-            Directory$new(path(super$path(), dirname))
+        dir = function(dirname, link = NULL) {
+            Directory$new(path(super$path(), dirname), link)
         },
 
         file = function(filename) {

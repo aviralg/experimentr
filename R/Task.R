@@ -16,6 +16,10 @@ Task <- R6Class(
             private$.description
         },
 
+        inputs = function() {
+            private$.inputs
+        },
+
         store = function() {
             private$.store
         },
@@ -36,7 +40,7 @@ Task <- R6Class(
             private$.result <- result
         },
 
-        initialize = function(name, description) {
+        initialize = function(name, description, inputs = list()) {
 
             if (str_detect(name, fixed("/"))) {
                 msg <- sprintf("task name %s cannot have a /", name)
@@ -47,6 +51,7 @@ Task <- R6Class(
 
             private$.name <- name
             private$.description <- description
+            private$.inputs <- inputs
         },
 
         execute = function(executor) {
@@ -71,6 +76,7 @@ Task <- R6Class(
     private = list(
         .name = NULL,
         .description = NULL,
+        .inputs = NULL,
         .store = NULL,
         .output = NULL,
         .result = NULL
