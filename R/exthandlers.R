@@ -157,46 +157,81 @@ txt_reader <-  function(...) {
     }
 }
 
-#' @export
-select_writer <- function(ext, ...) {
+initialize_ext_handlers <- function() {
+    set_reader_and_writer("int", int_reader(), int_writer())
+    set_reader_and_writer("dbl", dbl_reader(), dbl_writer())
+    set_reader_and_writer("lgl", lgl_reader(), lgl_writer())
+    set_reader_and_writer("chr", chr_reader(), chr_writer())
+    set_reader_and_writer("cpx", cpx_reader(), cpx_writer())
+    set_reader_and_writer("raw", raw_reader(), raw_writer())
+    set_reader_and_writer("rds", rds_reader(), rds_writer())
+    set_reader_and_writer("fst", fst_reader(), fst_writer())
+    set_reader_and_writer("csv", csv_reader(), csv_writer())
+    set_reader_and_writer("txt", txt_reader(), txt_writer())
+}
 
-    writer_gen <- list(int = int_writer,
-                       dbl = dbl_writer,
-                       lgl = lgl_writer,
-                       chr = chr_writer,
-                       cpx = cpx_writer,
-                       raw = raw_writer,
-                       rds = rds_writer,
-                       fst = fst_writer,
-                       csv = csv_writer,
-                       txt = txt_writer)[[ext]]
+get_ext_handlers <- function(ext) {
+    result <- .ext_handlers[[ext]]
 
-    if (is.null(writer_gen)) {
-        msg <- sprintf("no writer available for extension %s", ext)
-        stop(msg)
+    if (is.null(result)) {
+        result <- new.env(hash = TRUE, parent = emptyenv())
+        assign(ext, result, envir = .ext_handlers)
     }
 
-    writer_gen(...)
+    result
 }
 
 #' @export
-select_reader <- function(ext, ...) {
+get_reader <- function(ext) {
 
-    reader_gen <- list(int = int_reader,
-                       dbl = dbl_reader,
-                       lgl = lgl_reader,
-                       chr = chr_reader,
-                       cpx = cpx_reader,
-                       raw = raw_reader,
-                       rds = rds_reader,
-                       fst = fst_reader,
-                       csv = csv_reader,
-                       txt = txt_reader)[[ext]]
+    handlers <- get_ext_handlers(ext)
+    reader <- handlers$reader
 
-    if (is.null(reader_gen)) {
-        msg <- sprintf("no reader available for extension %s", ext)
+    if (is.null(reader)) {
+        msg <- sprintf("reader not available for extension %s", ext)
         stop(msg)
     }
 
-    reader_gen(...)
+    reader
+}
+
+#' @export
+set_reader <- function(ext, reader) {
+
+    handlers <- get_ext_handlers(ext)
+    handlers$reader <- reader
+
+    invisible(NULL)
+}
+
+#' @export
+get_writer <- function(ext) {
+
+    handlers <- get_ext_handlers(ext)
+    writer <- handlers$writer
+
+    if (is.null(writer)) {
+        msg <- sprintf("writer not available for extension %s", ext)
+        stop(msg)
+    }
+
+    writer
+}
+
+#' @export
+set_writer <- function(ext, writer) {
+
+    handlers <- get_ext_handlers(ext)
+    handlers$writer <- writer
+
+    invisible(NULL)
+}
+
+#' @export
+set_reader_and_writer <- function(ext, reader, writer) {
+
+    set_reader(ext, reader)
+    set_writer(ext, writer)
+
+    invisible(NULL)
 }

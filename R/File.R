@@ -26,12 +26,14 @@ File <- R6Class(
             file_exists(super$path())
         },
 
-        read = function(reader = select_reader(self$extension())) {
+        read = function() {
+            reader <- get_reader(self$extension())
             ## TODO: cache
             reader(super$path())
         },
 
-        write = function(content, writer = select_writer(self$extension())) {
+        write = function(content) {
+            writer <- get_writer(self$extension())
             writer(content, super$path())
         }
     )
