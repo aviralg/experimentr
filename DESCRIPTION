@@ -30,4 +30,8 @@ Imports:
     tibble,
     withr,
     progress,
-    gert
+    gert,
+    ggplot2,
+    showtext,
+    sysfonts,
+    tikzDevice
