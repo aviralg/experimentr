@@ -25,14 +25,14 @@ get_package_function_info <- function(name, ns) {
     fun <- get0(name, ns)
     args <- formals(fun)
     defaults <- as.character(args)
-    defaults[defaults == ""] <- NA_character_
     argnames <- as.character(names(args))
+    parameters <- paste0("expression(", paste0(argnames, " = ", defaults, collapse = ", "), ")")
     exported <- is_exported(ns, name)
 
     tibble(funname = name,
            exported = exported,
-           argument = argnames,
-           default = defaults)
+           arity = length(argnames),
+           parameters = parameters)
 }
 
 #' @importFrom purrr keep map_dfr
