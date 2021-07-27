@@ -34,4 +34,5 @@ Imports:
     ggplot2,
     showtext,
     sysfonts,
-    tikzDevice
+    tikzDevice,
+    glue
