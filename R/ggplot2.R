@@ -22,10 +22,10 @@ save_as_tikz <- function(plot,
 
 
 #' @export
-set_publication_theme <- function(type = "acmart", base_size = 8, ...) {
+publication_theme <- function(type = "acmart", base_size = 8, ...) {
 
     if (type == "acmart") {
-        set_acmart_theme(base_size = base_size, ...)
+        acmart_theme(base_size = base_size, ...)
     }
     else {
         stop(sprintf("Unsupported theme type %s", type))
@@ -34,14 +34,14 @@ set_publication_theme <- function(type = "acmart", base_size = 8, ...) {
 
 
 #' @importFrom ggplot2 theme_minimal theme theme_set
-set_acmart_theme <- function(base_size = 8, ...) {
+acmart_theme <- function(base_size = 8, ...) {
 
     initialize_linux_libertine_font()
 
-    new_theme <-
+    theme <-
         theme_minimal(base_size = base_size,
                       base_family = "Linux Libertine") +
         theme(...)
 
-    theme_set(new_theme)
+    theme
 }
