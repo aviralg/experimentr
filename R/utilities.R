@@ -29,3 +29,16 @@ pad <- function(str, max, char = "", truncate = FALSE) {
 run_length_encoding <- function(input) {
     .Call(r_experimentr_run_length_encoding, input)
 }
+
+#' @export
+compose <- function(...) {
+    funs <- rev(list(...))
+
+    function(...) {
+        res <- funs[[1]](...)
+        for (fun in funs[-1]) {
+            res <- fun(res)
+        }
+        res
+    }
+}

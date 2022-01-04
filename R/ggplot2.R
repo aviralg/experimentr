@@ -34,13 +34,14 @@ publication_theme <- function(type = "acmart", base_size = 8, ...) {
 
 
 #' @importFrom ggplot2 theme_minimal theme theme_set
-acmart_theme <- function(base_size = 8, ...) {
+acmart_theme <- function(base_size = 8, font_family = "Linux Libertine", ...) {
 
     initialize_linux_libertine_font()
 
     theme <-
         theme_minimal(base_size = base_size,
-                      base_family = "Linux Libertine") +
+                      base_family = font_family) +
+        theme(plot.title=element_text(family=font_family)) +
         theme(...)
 
     theme

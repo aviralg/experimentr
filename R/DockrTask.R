@@ -3,7 +3,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom gert git_clone git_branch git_remote_info git_pull
 #' @importFrom fs dir_ls path_ext_remove path_file
-GitRepositoryTask <- R6Class(
+DockrTask <- R6Class(
 
     "GitRepositoryTask",
 

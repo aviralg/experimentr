@@ -29,6 +29,13 @@ LatexMacroGenerator <-
                      self$from_vectors(table[[label_colname]], table[[value_colname]], prefix = prefix)
                  },
 
+                 #' @importFrom purrr flatten_chr
+                 from_df = function(df, ..., prefix = "") {
+                    colnames <- as.character(eval(substitute(expression(...))))
+                    result <- map(colnames, function(colname) self$from_vectors(colname, df[[colname]], prefix))
+                    flatten_chr(result)
+                 },
+
                  from_list = function(list, prefix = "") {
                      self$from_vectors(names(list), unlist(unname(list)), prefix)
                  },
